@@ -3,3 +3,6 @@ This repo is a fork of this excellent repo https://github.com/cptactionhank/dock
 ## Changelog
 
 1. Updated netalk version to 3.1.12
+1. Changed Debian version from Jessie to Stretch-slim
+1. Updated afp.conf to remove anonymous access
+1. Remove avahi ENV var (always run)
