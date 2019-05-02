@@ -1,32 +1,16 @@
-#!/bin/bash
+#!/bin/bash -u
 
-if [ ! -z "${AFP_USER}" ]; then
-    if [ ! -z "${AFP_UID}" ]; then
-        cmd="$cmd --uid ${AFP_UID}"
-    fi
-    if [ ! -z "${AFP_GID}" ]; then
-        cmd="$cmd --gid ${AFP_GID}"
-        groupadd --gid ${AFP_GID} ${AFP_USER}
-    fi
-    adduser $cmd --no-create-home --disabled-password --gecos '' "${AFP_USER}"
-    if [ ! -z "${AFP_PASSWORD}" ]; then
-        echo "${AFP_USER}:${AFP_PASSWORD}" | chpasswd
-    fi
-fi
+# -u flag causes script to error if it finds unset variable.
 
-if [ ! -d /media/share ]; then
-  mkdir /media/share
-  echo "use -v /my/dir/to/share:/media/share" > readme.txt
-fi
+# Add the fileshare group and user
+groupadd --gid ${AFP_GID} ${AFP_USER}
+adduser --uid ${AFP_UID} --gid ${AFP_GID} --no-create-home --disabled-password --gecos '' "${AFP_USER}"
+# Store the secret in a Docker Secret and pass the secret name in as a variable
+cat /run/secrets/${AFP_SECRET} | chpasswd
+
+#Ensure that share directory exists and is owned by the fileshare user.
+mkdir -p /media/share
 chown "${AFP_USER}" /media/share
-
-# if [ ! -d /media/timemachine ]; then
-#   mkdir /media/timemachine
-#   echo "use -v /my/dir/to/timemachine:/media/timemachine" > readme.txt
-# fi
-# chown "${AFP_USER}" /media/timemachine
-
-sed -i'' -e "s,%USER%,${AFP_USER:-},g" /etc/afp.conf
 
 # Start dbus
 mkdir -p /var/run/dbus
