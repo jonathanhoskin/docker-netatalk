@@ -17,7 +17,6 @@ dbus-daemon --system
 
 # Start avahi
 sed -i '/rlimit-nproc/d' /etc/avahi/avahi-daemon.conf
-sed -i 's/#host-name=/host-name=cluster-netatalk/' /etc/avahi/avahi-daemon.conf
 avahi-daemon -D
 
 exec netatalk -d
