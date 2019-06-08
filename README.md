@@ -4,18 +4,22 @@ This repo is a fork of this excellent repo https://github.com/cptactionhank/dock
 
 
 1. Changed Debian version from Jessie to Buster-slim
-2. Install netatalk from official Debian repository
-3. Added `dokcer-compose.yml` for ease of use
-4. Option to create multiple users
-5. Updated afp.conf to remove anonymous access
-6. Remove avahi ENV var (always run)
+1. Install netatalk from official Debian repository
+1. Added `docker-compose.yml` for ease of use
+1. Option to create multiple users
+1. Updated afp.conf to remove anonymous access
+1. Remove avahi ENV var (always run)
+1. Other configurations by env vars
 
 ## I'm in the fast lane! Get me started
 
 To quickly get started with running an [Netatalk] container first you can run the following command:
 
 ```bash
-docker run --detach --publish 548:548 cptactionhank/netatalk:latest
+docker run \
+    --detach \
+    --publish 548:548 \
+    manuellr/netatalk
 ```
 
 **Important:** This does not announce the AFP service on the network; connecting to the server should be performed by Finder's `Go -> Connect Server (CMD+K)` and then typing `afp://[docker_host]`.
@@ -23,7 +27,18 @@ docker run --detach --publish 548:548 cptactionhank/netatalk:latest
 Default configuration of [Netatalk] has two share called _Share_ which shares the containers `/media/share` and called _TimeMachine_ which shares the containers `/media/timemachine` mounting point. Host mounting a volume to this path will be the quickest way to start sharing files on your network.
 
 ```bash
-docker run --detach --volume [host_path]:/media/share --volume [host_path]:/media/timemachine --publish 548:548 cptactionhank/netatalk:latest
+docker run \
+    --detach \
+    --volume [host_path]:/media/share \
+    --volume [host_path]:/media/timemachine \
+    --publish 548:548 \
+    manuellr/netatalk
+```
+
+Alternatively, it can be executed using docker-compose with the following command:
+
+```bash
+docker-compose up -d
 ```
 
 ## The slower road
@@ -39,53 +54,52 @@ There are two ways of configuring the [Netatalk] which is either by mounting a c
 This is quite a simple way to change the configuration by supplying an additional docker flag when creating the container.
 
 ```bash
-docker run --detach --volume [host_path]:/etc/afp.conf --volume [host_path]:/media/share --volume [host_path]:/media/timemachine --publish 548:548 cptactionhank/netatalk:latest
+docker run \
+    --detach \
+    --volume [host_path]:/etc/afp.conf \
+    --volume [host_path]:/media/share \
+    --volume [host_path]:/media/timemachine \
+    --publish 548:548 \
+    manuellr/netatalk
 ```
 
-#### Container edited configuration
+### Setting up with environment variables
 
-Other ways of enabling customizations of the [Netatalk] configuration file is by mounting the `/etc` by `--volume /etc` such that this directory will remain persistent between restarts and then modify the configuration file. However the first option would be the recommended way to do this.
+That variables could be setted in a file called `netatalk.env`. This file is used by the [docker-compose.yml](./docker-compose.yml) file or by using the flag `--env-file` when exec the `docker run` command.
 
-### Setting up access credentials
+#### Configuration
+
+|Variable       |Description|
+|---------------|-----------|
+|AFP_SPOTLIGHT  | (yes/**no**) Enables the possibility that, when searching in spotlight on the mac, shows results of these volumes |
+|AFP_ZEROCONF   | (yes/**no**) Enables the possibility that it can be detected on local networks. This must be complemented using `host` network when executing the container |
+|AFP_NAME       | (def: **Netatalk-server**) Name of the device to be displayed |
+
+#### Access credentials
 
 To setup access credentials you should supply the following environment variables from the table below.
 
-|Variable           |Description|
-|---------------|-----------|
-|AFP_USER       | create a user in the container and allow it access to /media/share    |
-|AFP_PASSWORD   | password
-|AFP_UID        | _uid_ of the created user
-|AFP_GID        | _gid_ of the created user
+|Variable          |Description|
+|------------------|-----------|
+|AFP_USER          | create a user in the container and allow it access to /media/share |
+|AFP_USER_PASSWORD | password
+|AFP_USER_UID      | (optional) _uid_ of the created user
+|AFP_USER_GID      | (optional) _gid_ of the created user
 
-#### Example
+If you need to **add more user** you can do it adding the user number. For example, `AFP_USER_2`, `AFP_USER_2_PASSWORD` or `AFP_USER_15`.
 
-```bash
-docker run --detach \
-    --volume /mnt/sda1/share:/media/share \
-    --net "host" \
-    --env AFP_USER=$(id -un) \
-    --env AFP_PASSWORD=secret \
-    --env AFP_UID=$(id -u) \
-    --env AFP_GID=$(id -g) \
-    cptactionhank/netatalk:latest
-```
-
-This replaces all occurrences of `%USER%` in `afp.conf` with `AFP_USER`
-
-```ini
-[Global]
-log file = /var/log/netatalk.log
-
-[Share]
-path = /media/share
-valid users = %USER%
-```
 
 ### Service discovery
 
-This image includes an avahi daemon which is off by default. Enable by setting the environment variable `AVAHI=1` with `docker run -e AVAHI=1 ...`
+This image includes an avahi daemon which makes it discoverable on the network. Enable by setting the environment variable `AFP_ZEROCONF=true`.
 
-Service discovery works only when the [Avahi] daemon is on the same network as your users which is why you need to supply `--net=host` flag to Docker when creating the container, but do consider that `--net=host` is considered a security threat. Alternatively you can install and setup an mDNS server on the host and have this describing the AFP service for your container.
+Service discovery works only when the container use the same network as the users which is why you need to run the container in `host` network, but do consider that it is considered a security threat. That option could be enable be supply `--net=host` flag to Docker or by enabling `docker-compose.override-net.yml` with the command:
+
+```bash
+ln -s docker-compose.override-net.yml docker-compose.override.yml
+```
+
+Alternatively you can install and setup an mDNS server on the host and have this describing the AFP service for your container.
 
 ## Acknowledgments
 

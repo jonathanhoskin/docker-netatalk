@@ -3,12 +3,9 @@ FROM debian:buster-slim
 # Set noninteractive mode (no prompts, accept defaults everywhere)
 ENV DEBIAN_FRONTEND=noninteractive
 
-## Set default variables
-# Search in spotlight bar
+# Set default variables
 ENV AFP_SPOTLIGHT no
-# Enable when --net=host
 ENV AFP_ZEROCONF no
-# Define a generic standard name
 ENV AFP_NAME Netatalk-server
 
 RUN \
