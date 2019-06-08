@@ -10,8 +10,6 @@ ENV AFP_SPOTLIGHT no
 ENV AFP_ZEROCONF no
 # Define a generic standard name
 ENV AFP_NAME Netatalk-server
-# Define a generic standard groupid
-ENV AFP_GID 9934
 
 RUN \
     set -ex \

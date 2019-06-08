@@ -28,14 +28,16 @@ function createUser {
     echo
 }
 
-groupadd --gid 9934 netatalk-files
+if [ ! -e ".NotFirstRun" ]; then
+    groupadd --gid 9934 netatalk-files
 
-while IFS='=' read -r name value ; do
-    if [[ $name =~ ^AFP_USER_[0-9]+$ ]] || [[ $name =~ ^AFP_USER$ ]] ; then
-        createUser $name
-    fi
-done < <(env|sort -h)
-
+    while IFS='=' read -r name value ; do
+        if [[ $name =~ ^AFP_USER_[0-9]+$ ]] || [[ $name =~ ^AFP_USER$ ]] ; then
+            createUser $name
+        fi
+    done < <(env|sort -h)
+    touch .NotFirstRun
+fi
 
 if [ ! -d /media/share ]; then
   mkdir -p /media/share
