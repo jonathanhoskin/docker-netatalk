@@ -6,6 +6,7 @@ function createUser {
     local VARIABLE_NAME=$1
     local C_USER="$VARIABLE_NAME"
     local C_USER_UID="${VARIABLE_NAME}_UID"
+    local C_USER_GID="${VARIABLE_NAME}_GID"
     local C_USER_PASSWORD="${VARIABLE_NAME}_PASSWORD"
     local cmd
     echo "Creating user: " ${!VARIABLE_NAME}
@@ -14,11 +15,12 @@ function createUser {
         if [ ! -z "${!C_USER_UID}" ]; then
             cmd="$cmd --uid ${!C_USER_UID}"
         fi
-        if [ ! -z "${AFP_GID}" ]; then
-            cmd="$cmd --gid ${AFP_GID}"
-            groupadd --gid ${AFP_GID} netatalk-files 2>&1 > /dev/null || true
+        if [ ! -z "${!C_USER_GID}" ]; then
+            cmd="$cmd --gid ${!C_USER_GID}"
+            groupadd --gid ${!C_USER_GID} "${!C_USER}"
         fi
         adduser $cmd --no-create-home --disabled-password --gecos '' "${!C_USER}"
+        usermod -a -G netatalk-files "${!C_USER}"
         if [ ! -z "${!C_USER_PASSWORD}" ]; then
             echo "${!C_USER}:${!C_USER_PASSWORD}" | chpasswd
         fi
@@ -26,12 +28,11 @@ function createUser {
     echo
 }
 
-USERS=""
+groupadd --gid 9934 netatalk-files
 
 while IFS='=' read -r name value ; do
     if [[ $name =~ ^AFP_USER_[0-9]+$ ]] || [[ $name =~ ^AFP_USER$ ]] ; then
         createUser $name
-        USERS="$USERS, ${!name}"
     fi
 done < <(env|sort -h)
 
@@ -40,15 +41,17 @@ if [ ! -d /media/share ]; then
   mkdir -p /media/share
   echo "use -v /my/dir/to/share:/media/share" > readme.txt
 fi
-chown "${AFP_GID}" /media/share
+chgrp netatalk-files /media/share
+chmod g+rwx /media/share
 
 if [ ! -d /media/timemachine ]; then
   mkdir -p /media/timemachine
   echo "use -v /my/dir/to/timemachine:/media/timemachine" > readme.txt
 fi
-chown "${AFP_GID}" /media/timemachine
 
-sed -i'' -e "s|%USERS%|${USERS:-}|g" /etc/netatalk/afp.conf
+chgrp netatalk-files /media/timemachine
+chmod g+rwx /media/timemachine
+
 sed -i'' -e "s,%AFP_NAME%,${AFP_NAME:-},g" /etc/netatalk/afp.conf
 sed -i'' -e "s,%AFP_SPOTLIGHT%,${AFP_SPOTLIGHT:-},g" /etc/netatalk/afp.conf
 sed -i'' -e "s,%AFP_ZEROCONF%,${AFP_ZEROCONF:-},g" /etc/netatalk/afp.conf
