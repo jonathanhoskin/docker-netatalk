@@ -1,0 +1,11 @@
+version: '3'
+services:
+  netatalk:
+    image: manuellr/netatalk
+    ports:
+      - "${DOCKER_NETATALK_EXT_IP:-0.0.0.0}:548:548"
+    volumes:
+      - "${DOCKER_NETATALK_MOUNT_PATH:-.}/share:/media/share"
+      - "${DOCKER_NETATALK_MOUNT_PATH:-.}/timemachine:/media/timemachine"
+    env_file:
+      - netatalk.env

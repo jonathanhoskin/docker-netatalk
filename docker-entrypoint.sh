@@ -1,14 +1,54 @@
 #!/bin/bash
+set -e
 
-# Add the fileshare group and user
-groupadd --gid ${AFP_GID} ${AFP_USER}
-adduser --uid ${AFP_UID} --gid ${AFP_GID} --no-create-home --disabled-password --gecos '' "${AFP_USER}"
-# Store the secret in a Docker Secret and pass the secret name in as a variable
-cat /run/secrets/netatalk_passwd | chpasswd
+function createUser {
+    echo
+    local VARIABLE_NAME=$1
+    local C_USER="$VARIABLE_NAME"
+    local C_USER_UID="${VARIABLE_NAME}_UID"
+    local C_USER_PASSWORD="${VARIABLE_NAME}_PASSWORD"
+    local cmd
+    echo "Creating user: " ${!VARIABLE_NAME}
 
-#Ensure that share directory exists and is owned by the fileshare user.
-mkdir -p /media/share
-chown "${AFP_USER}" /media/share
+    if [ ! -z "${!C_USER}" ]; then
+        if [ ! -z "${!C_USER_UID}" ]; then
+            cmd="$cmd --uid ${!C_USER_UID}"
+        fi
+        if [ ! -z "${AFP_GID}" ]; then
+            cmd="$cmd --gid ${AFP_GID}"
+            groupadd --gid ${AFP_GID} netatalk-files 2>&1 > /dev/null || true
+        fi
+        adduser $cmd --no-create-home --disabled-password --gecos '' "${!C_USER}"
+        if [ ! -z "${!C_USER_PASSWORD}" ]; then
+            echo "${!C_USER}:${!C_USER_PASSWORD}" | chpasswd
+        fi
+    fi
+    echo
+}
+
+while IFS='=' read -r name value ; do
+    if [[ $name =~ ^AFP_USER_[0-9]+$ ]] || [[ $name =~ ^AFP_USER$ ]] ; then
+        createUser $name
+    fi
+done < <(env|sort -h)
+
+
+if [ ! -d /media/share ]; then
+  mkdir -p /media/share
+  echo "use -v /my/dir/to/share:/media/share" > readme.txt
+fi
+chown "${AFP_GID}" /media/share
+
+if [ ! -d /media/timemachine ]; then
+  mkdir -p /media/timemachine
+  echo "use -v /my/dir/to/timemachine:/media/timemachine" > readme.txt
+fi
+chown "${AFP_GID}" /media/timemachine
+
+sed -i'' -e "s,%USER%,${AFP_USER:-},g" /etc/netatalk/afp.conf
+sed -i'' -e "s,%AFP_NAME%,${AFP_NAME:-},g" /etc/netatalk/afp.conf
+sed -i'' -e "s,%AFP_SPOTLIGHT%,${AFP_SPOTLIGHT:-},g" /etc/netatalk/afp.conf
+sed -i'' -e "s,%AFP_ZEROCONF%,${AFP_ZEROCONF:-},g" /etc/netatalk/afp.conf
 
 # Start dbus
 mkdir -p /var/run/dbus
