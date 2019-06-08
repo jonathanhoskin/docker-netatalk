@@ -26,9 +26,12 @@ function createUser {
     echo
 }
 
+USERS=""
+
 while IFS='=' read -r name value ; do
     if [[ $name =~ ^AFP_USER_[0-9]+$ ]] || [[ $name =~ ^AFP_USER$ ]] ; then
         createUser $name
+        USERS="$USERS, ${!name}"
     fi
 done < <(env|sort -h)
 
@@ -45,7 +48,7 @@ if [ ! -d /media/timemachine ]; then
 fi
 chown "${AFP_GID}" /media/timemachine
 
-sed -i'' -e "s,%USER%,${AFP_USER:-},g" /etc/netatalk/afp.conf
+sed -i'' -e "s|%USERS%|${USERS:-}|g" /etc/netatalk/afp.conf
 sed -i'' -e "s,%AFP_NAME%,${AFP_NAME:-},g" /etc/netatalk/afp.conf
 sed -i'' -e "s,%AFP_SPOTLIGHT%,${AFP_SPOTLIGHT:-},g" /etc/netatalk/afp.conf
 sed -i'' -e "s,%AFP_ZEROCONF%,${AFP_ZEROCONF:-},g" /etc/netatalk/afp.conf
