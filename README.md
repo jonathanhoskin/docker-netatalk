@@ -1,3 +1,13 @@
+
+##### Alert #####
+I have reforked this from https://github.com/vchavkov and added some tweaks for using your own afp.conf file.
+
+Docs are not updated, yet. Cleaned up docs and more changes to come.
+
+-Dave
+
+#### Alert ####
+
 This repo is a fork of this excellent repo https://github.com/cptactionhank/docker-netatalk to updating and improving the base implementation.
 
 ## Changelog from original repo
