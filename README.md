@@ -4,11 +4,8 @@ I have reforked this from https://github.com/vchavkov and added some tweaks for 
 
 -Dave
 
-## Alert ##
-
-This repo is a fork of this excellent repo https://github.com/cptactionhank/docker-netatalk to updating and improving the base implementation.
-
 ### Changelog from original repo
+This repo is a fork of this excellent repo https://github.com/cptactionhank/docker-netatalk to updating and improving the base implementation.
 
 
 1. Changed Debian version from Jessie to Buster-slim
