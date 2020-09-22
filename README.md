@@ -1,16 +1,14 @@
 
-##### Alert #####
+### Alert ###
 I have reforked this from https://github.com/vchavkov and added some tweaks for using your own afp.conf file.
-
-Docs are not updated, yet. Cleaned up docs and more changes to come.
 
 -Dave
 
-#### Alert ####
+## Alert ##
 
 This repo is a fork of this excellent repo https://github.com/cptactionhank/docker-netatalk to updating and improving the base implementation.
 
-## Changelog from original repo
+### Changelog from original repo
 
 
 1. Changed Debian version from Jessie to Buster-slim
@@ -22,7 +20,7 @@ This repo is a fork of this excellent repo https://github.com/cptactionhank/dock
 1. Other configurations by env vars
 1. Fixed ability to use custom afp.conf files passed through to /etc/afp.conf
 
-## I'm in the fast lane! Get me started
+#### I'm in the fast lane! Get me started
 
 To quickly get started with running an [Netatalk] container first you can run the following command:
 
@@ -52,15 +50,15 @@ Alternatively, it can be executed using docker-compose with the following comman
 docker-compose up -d
 ```
 
-## The slower road
+#### The slower road
 
 With the slower roads documentation some knowledge in administering Docker and [Netatalk] assumed.
 
-### Configuring shares
+##### Configuring shares
 
 There are two ways of configuring the [Netatalk] which is either by mounting a configuration file or editing the file from the container itself. Documentation of the configuration file `/etc/afp.conf` can be found [here](http://netatalk.sourceforge.net/3.1/htmldocs/afp.conf.5.html).
 
-#### Host mounted configuration
+###### Host mounted configuration
 
 This is quite a simple way to change the configuration by supplying an additional docker flag when creating the container. ** Note: please use the example afp.conf hosted here if you are intending to use the environmental variables highlighted below. **
 
@@ -74,11 +72,11 @@ docker run \
     dfiore/netatalk
 ```
 
-### Setting up with environment variables
+##### Setting up with environment variables
 
 That variables could be setted in a file called `netatalk.env`. This file is used by the [docker-compose.yml](./docker-compose.yml) file or by using the flag `--env-file` when exec the `docker run` command.
 
-#### Configuration
+###### Configuration
 
 |Variable       |Description|
 |---------------|-----------|
@@ -86,7 +84,7 @@ That variables could be setted in a file called `netatalk.env`. This file is use
 |AFP_ZEROCONF   | (yes/**no**) Enables the possibility that it can be detected on local networks. This must be complemented using `host` network when executing the container |
 |AFP_NAME       | (def: **Netatalk-server**) Name of the device to be displayed |
 
-#### Access credentials
+###### Access credentials
 
 To setup access credentials you should supply the following environment variables from the table below.
 
@@ -100,7 +98,7 @@ To setup access credentials you should supply the following environment variable
 If you need to **add more user** you can do it adding the user number. For example, `AFP_USER_2`, `AFP_USER_2_PASSWORD` or `AFP_USER_15`.
 
 
-### Service discovery
+##### Service discovery
 
 This image includes an avahi daemon which makes it discoverable on the network. Enable by setting the environment variable `AFP_ZEROCONF=true`.
 
@@ -112,11 +110,11 @@ ln -s docker-compose.override-net.yml docker-compose.override.yml
 
 Alternatively you can install and setup an mDNS server on the host and have this describing the AFP service for your container.
 
-## Acknowledgments
+#### Acknowledgments
 
 Thanks to @rrva for his work updating this image to [Netatalk] version 3.1.8 and slimming down this image for everyone to enjoy.
 
-## Contributions
+#### Contributions
 
 This image has been created with the best intentions and an expert understanding of docker, but it should not be expected to be flawless. Should you be in the position to do so, I request that you help support this repository with best-practices and other additions.
 
