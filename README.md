@@ -20,6 +20,7 @@ This repo is a fork of this excellent repo https://github.com/cptactionhank/dock
 1. Updated afp.conf to remove anonymous access
 1. Remove avahi ENV var (always run)
 1. Other configurations by env vars
+1. Fixed ability to use custom afp.conf files passed through to /etc/afp.conf
 
 ## I'm in the fast lane! Get me started
 
@@ -29,7 +30,7 @@ To quickly get started with running an [Netatalk] container first you can run th
 docker run \
     --detach \
     --publish 548:548 \
-    manuellr/netatalk
+    dfiore/netatalk
 ```
 
 **Important:** This does not announce the AFP service on the network; connecting to the server should be performed by Finder's `Go -> Connect Server (CMD+K)` and then typing `afp://[docker_host]`.
@@ -42,7 +43,7 @@ docker run \
     --volume [host_path]:/media/share \
     --volume [host_path]:/media/timemachine \
     --publish 548:548 \
-    manuellr/netatalk
+    dfiore/netatalk
 ```
 
 Alternatively, it can be executed using docker-compose with the following command:
@@ -61,7 +62,7 @@ There are two ways of configuring the [Netatalk] which is either by mounting a c
 
 #### Host mounted configuration
 
-This is quite a simple way to change the configuration by supplying an additional docker flag when creating the container.
+This is quite a simple way to change the configuration by supplying an additional docker flag when creating the container. ** Note: please use the example afp.conf hosted here if you are intending to use the environmental variables highlighted below. **
 
 ```bash
 docker run \
@@ -70,7 +71,7 @@ docker run \
     --volume [host_path]:/media/share \
     --volume [host_path]:/media/timemachine \
     --publish 548:548 \
-    manuellr/netatalk
+    dfiore/netatalk
 ```
 
 ### Setting up with environment variables
