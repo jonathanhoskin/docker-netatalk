@@ -1,3 +1,104 @@
+## Jono's fork
+
+Forked from: https://github.com/dfiore1230/docker-netatalk
+
+1. I didn't like the way they overwrite the entire afp.conf on every boot, so I removed that from the entrypoint
+2. I removed the predefined shares from afp.conf - this is easy enough to do with a volume mount of afp.conf through from the host
+
+.env file in the same dir as docker-compose.yml:
+
+```
+AFP_USER=[...]
+AFP_USER_PASSWORD=[...]
+AFP_USER_UID=[...]
+AFP_USER_GID=[...]
+AFP_USER_2=[...]
+AFP_USER_2_PASSWORD=[...]
+AFP_USER_2_UID=[...]
+AFP_USER_2_GID=[...]
+AFP_USER_3=[...]
+AFP_USER_3_PASSWORD=[...]
+AFP_USER_3_UID=[...]
+AFP_USER_3_GID=[...]
+```
+
+/data/netatalk/afp.conf:
+
+```
+[Global]
+    spotlight = no
+    mimic model = RackMac
+    log file = /dev/stdout
+    log level = default:warn
+    afp listen = 10.0.1.2:548 [fd42:dcae:2109::2]:548
+    hostname = Home
+    afpstats = yes
+
+[Public]
+    path = /public
+    valid users = @netatalk-files
+    file perm = 0664
+    directory perm = 2775
+
+[Media]
+    path = /media
+    valid users = @netatalk-files
+    file perm = 0664
+    directory perm = 2775
+
+[Backup]
+    path = /backup
+    valid users = @netatalk-files
+    file perm = 0664
+    directory perm = 2775
+
+[NVR]
+    path = /nvr
+    valid users = @netatalk-files
+    file perm = 0664
+    directory perm = 2775
+
+[TimeMachine]
+    path = /timemachine
+    spotlight = no
+    time machine = yes
+    valid users = @netatalk-files
+```
+
+My docker-compose.yml looks like this:
+
+```
+version: '3'
+services:
+  netatalk:
+    build: https://github.com/jonathanhoskin/docker-netatalk.git
+    container_name: netatalk
+    network_mode: host
+    volumes:
+      - /data/netatalk/afp.conf:/etc/netatalk/afp.conf:ro
+      - /data/public:/public
+      - /media:/media
+      - /backup:/backup
+      - /nvr:/nvr
+      - /data/timemachine:/timemachine
+    environment:
+      - TZ=Pacific/Auckland
+      - AFP_USER
+      - AFP_USER_PASSWORD
+      - AFP_USER_UID
+      - AFP_USER_GID
+      - AFP_USER_2
+      - AFP_USER_2_PASSWORD
+      - AFP_USER_2_UID
+      - AFP_USER_2_GID
+      - AFP_USER_3
+      - AFP_USER_3_PASSWORD
+      - AFP_USER_3_UID
+      - AFP_USER_3_GID
+```
+
+Everything below here is from the forked Readme.
+
 
 ### Alert ###
 I have reforked this from https://github.com/vchavkov and added some tweaks for using your own afp.conf file.

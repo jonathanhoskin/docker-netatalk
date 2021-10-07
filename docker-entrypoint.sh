@@ -39,33 +39,6 @@ if [ ! -e ".NotFirstRun" ]; then
     touch .NotFirstRun
 fi
 
-if [ ! -d /media/share ]; then
-  mkdir -p /media/share
-  echo "use -v /my/dir/to/share:/media/share" > readme.txt
-fi
-chgrp netatalk-files /media/share
-chmod g+rwx /media/share
-
-if [ ! -d /media/timemachine ]; then
-  mkdir -p /media/timemachine
-  echo "use -v /my/dir/to/timemachine:/media/timemachine" > readme.txt
-fi
-
-chgrp netatalk-files /media/timemachine
-chmod g+rwx /media/timemachine
-
-if [ -f /etc/afp.conf ]; then
-	cp /etc/afp.conf /tmp/afp.conf
-	sed -i'' -e "s,%AFP_NAME%,${AFP_NAME:-},g" /tmp/afp.conf
-	sed -i'' -e "s,%AFP_SPOTLIGHT%,${AFP_SPOTLIGHT:-},g" /tmp/afp.conf
-	sed -i'' -e "s,%AFP_ZEROCONF%,${AFP_ZEROCONF:-},g" /tmp/afp.conf
-	cat /tmp/afp.conf > /etc/netatalk/afp.conf
-else
-	sed -i'' -e "s,%AFP_NAME%,${AFP_NAME:-},g" /etc/netatalk/afp.conf
-        sed -i'' -e "s,%AFP_SPOTLIGHT%,${AFP_SPOTLIGHT:-},g" /etc/netatalk/afp.conf
-        sed -i'' -e "s,%AFP_ZEROCONF%,${AFP_ZEROCONF:-},g" /etc/netatalk/afp.conf
-fi
-
 # Start dbus
 mkdir -p /var/run/dbus
 rm -f /var/run/dbus/pid
