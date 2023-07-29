@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
 # Set noninteractive mode (no prompts, accept defaults everywhere)
 ENV DEBIAN_FRONTEND=noninteractive
